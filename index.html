@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>日英 Dialogue Journal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Noto Serif TC','Hiragino Serif',Georgia,serif;background:#F7F5F0;color:#1A1A1A;min-height:100vh}
+input,select,button{font-family:inherit}
+button{cursor:pointer}
+.app-wrap{max-width:900px;margin:0 auto;padding:0 16px}
+@media(min-width:640px){.app-wrap{padding:0 24px}}
+@media(min-width:900px){.app-wrap{padding:0 32px}}
+.grid-2{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:520px){.grid-2{grid-template-columns:1fr 1fr}}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.entry-grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:640px){.entry-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.entry-grid{grid-template-columns:1fr 1fr 1fr}}
+.detail-cols{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:720px){.detail-cols{grid-template-columns:1fr 1fr;align-items:start}}
+.kp-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+@media(min-width:520px){.kp-row{grid-template-columns:1fr 1fr 1fr}}
+.form-line{display:grid;grid-template-columns:56px 1fr 1fr;gap:6px;margin-bottom:6px}
+.tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:20px;background:#ECEAE4;color:#888;margin:2px}
+.line-card{background:#fff;border-radius:10px;padding:12px 14px;border:1px solid #ECEAE4;margin-bottom:6px}
+.line-sp{font-size:10px;color:#bbb;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.line-ja{font-size:15px;color:#1A1A1A;line-height:1.6;margin-bottom:3px}
+.line-en{font-size:13px;color:#2E7D6A;line-height:1.5}
+.kp-card{background:#FFFBF5;border-radius:10px;padding:12px 14px;border:1px solid #F0E8D8;margin-bottom:8px}
+.kp-main{font-size:14px;font-weight:600;color:#C87030;margin-bottom:3px}
+.kp-en{font-size:13px;color:#2E7D6A;margin-bottom:4px}
+.kp-note{font-size:12px;color:#999}
+.ai-box{background:#fff;border-radius:12px;padding:14px 16px;border:1px solid #ECEAE4;margin-bottom:10px}
+.ai-label{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.section-title{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;margin-top:20px}
+.filter-pill{border:1px solid #E0DDD6;background:#fff;color:#888;padding:5px 13px;border-radius:20px;font-size:12px}
+.filter-pill.active{background:#1A1A1A;color:#fff;border-color:#1A1A1A}
+.cat-pill{border:none;padding:5px 12px;border-radius:20px;font-size:11px}
+.entry-card{background:#fff;border-radius:14px;padding:16px;border:1px solid #ECEAE4;cursor:pointer;border-top:3px solid #ddd;transition:box-shadow .15s}
+.entry-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.entry-card:active{opacity:.9}
+.lang-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px}
+.stat-box{background:#fff;border-radius:12px;padding:14px;text-align:center;border:1px solid #ECEAE4}
+.stat-num{font-size:26px;font-weight:700;line-height:1;color:#1A1A1A}
+.stat-label{font-size:10px;color:#bbb;margin-top:3px}
+.hidden-en{background:#D1ECE6;color:transparent;border-radius:4px;padding:0 2px;cursor:pointer}
+.hidden-ja{background:#F5E8D0;color:transparent;border-radius:4px;padding:0 2px;cursor:pointer}
+.study-hint{font-size:10px;color:#bbb;margin-top:3px}
+.pdf-dropdown{position:absolute;right:0;top:38px;background:#fff;border:1px solid #E0DDD6;border-radius:10px;padding:4px;z-index:300;min-width:130px;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+.pdf-option{padding:9px 14px;border-radius:7px;font-size:13px;color:#333;cursor:pointer}
+.pdf-option:hover{background:#F7F5F0}
+.inp{width:100%;background:#fff;border:1px solid #E0DDD6;border-radius:8px;padding:9px 12px;font-size:13px;outline:none;color:#1A1A1A}
+.inp:focus{border-color:#C87030;box-shadow:0 0 0 2px rgba(200,112,48,.12)}
+.save-btn{width:100%;background:#1A1A1A;color:#fff;border:none;border-radius:12px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px}
+.back-btn{background:#fff;border:1px solid #E0DDD6;color:#666;padding:7px 14px;border-radius:8px;font-size:13px}
+.hdr-btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid transparent}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+const SAMPLE_ENTRIES = [
+  { id:21, date:"2026-06-09", topic:"Casual Conversation (Kyoto)", topicJa:"日本人との雑談（京都）", category:"Daily Life", lang:"JA",
+    lines:[{sp:"A",ja:"京都はいつ来たんですか？",en:"When did you come to Kyoto?"},{sp:"B",ja:"先週来ました。もう一週間います。",en:"I came last week. I've been here for a week already."},{sp:"A",ja:"金閣寺はもう行きましたか？",en:"Have you already been to Kinkakuji?"},{sp:"B",ja:"はい、行きました。バスで行けばよかったです。",en:"Yes, I went. I should have taken the bus."},{sp:"A",ja:"清水寺はまだですか？",en:"Haven't been to Kiyomizudera yet?"},{sp:"B",ja:"まだです。明日行くつもりです。",en:"Not yet. I'm planning to go tomorrow."}],
+    keyPoints:[{ja:"まだ vs また",en:"まだ = still/not yet；また = again",note:"常見混淆點"},{ja:"〜ばよかった",en:"Should have done...",note:"後悔的說法：乗れば（正確）vs 乗りば（錯誤）"},{ja:"〜つもりです",en:"I'm planning to...",note:"表達計畫的句型"}],
+    tags:["日語","casual","travel","Kyoto"]},
+  { id:20, date:"2026-06-09", topic:"Hotel Check-in (Japanese)", topicJa:"ホテルのチェックイン", category:"Travel", lang:"JA",
+    lines:[{sp:"Staff",ja:"いらっしゃいませ。ご予約はございますか？",en:"Welcome. Do you have a reservation?"},{sp:"You",ja:"はい、張という名前で予約しています。",en:"Yes, I have a reservation under the name Chang."},{sp:"Staff",ja:"少々お待ちください。朝食は含まれていますか？",en:"One moment please. Is breakfast included?"},{sp:"You",ja:"含まれているかどうか確認してもらえますか？",en:"Could you check if it's included?"},{sp:"Staff",ja:"チェックアウトは何時ですか？",en:"What time is check-out?"},{sp:"You",ja:"チェックアウトは何時ですか？",en:"What time is check-out?"}],
+    keyPoints:[{ja:"〜という名前で予約しています",en:"Reservation under the name...",note:"報名字訂房的日語說法"},{ja:"〜かどうか確認してもらえますか",en:"Could you check if...?",note:"請對方確認某事的禮貌說法"},{ja:"ありがとうございます",en:"Thank you very much",note:"注意發音：が（不是か）、とう（不是とこ）"}],
+    tags:["日語","travel","hotel","keigo"]},
+  { id:19, date:"2026-06-09", topic:"Shopping & Bargaining (Osaka)", topicJa:"買い物・値引き交渉（大阪）", category:"Shopping", lang:"JA",
+    lines:[{sp:"You",ja:"すみません、このコートはいくらですか？",en:"Excuse me, how much is this coat?"},{sp:"Staff",ja:"こちらは8,000円になります。",en:"This one is 8,000 yen."},{sp:"You",ja:"もう少し安くなりますか？",en:"Could you make it a little cheaper?"},{sp:"Staff",ja:"7,000円ならどうですか？",en:"How about 7,000 yen?"},{sp:"You",ja:"6,500円にしてもらえますか？",en:"Could you make it 6,500 yen?"},{sp:"Staff",ja:"わかりました、特別に6,500円でいいですよ！",en:"Alright, special price 6,500 yen for you!"},{sp:"You",ja:"やった！これにします！",en:"Yes! I'll take this one!"}],
+    keyPoints:[{ja:"もう少し安くなりますか？",en:"Could you make it a little cheaper?",note:"殺價最常用句型"},{ja:"〜円にしてもらえますか？",en:"Could you make it __ yen?",note:"指定金額殺價"},{ja:"これにします",en:"I'll take this one",note:"「に」絕對不能省略！これします ❌"}],
+    tags:["日語","shopping","bargaining","Osaka"]},
+  { id:18, date:"2026-06-06", topic:"Language School Enrollment", topicJa:"語言學校報名", category:"Business", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, I'd like to enroll in an English course."},{sp:"Staff",ja:"",en:"Of course! Are you looking for group classes or one-on-one lessons?"},{sp:"You",ja:"",en:"Group classes, please. What levels do you offer?"},{sp:"Staff",ja:"",en:"We have beginner, intermediate, and advanced. Could you take a placement test?"},{sp:"You",ja:"",en:"Sure. How long is the course?"},{sp:"Staff",ja:"",en:"It's a 12-week program, three times a week."},{sp:"You",ja:"",en:"That works for me. How much does it cost?"}],
+    keyPoints:[{ja:"",en:"I'd like to enroll in...",note:"報名課程的說法"},{ja:"",en:"Placement test",note:"分班測驗"},{ja:"",en:"That works for me.",note:"表示時間/安排都可以的自然說法"}],
+    tags:["English","education","enrollment"]},
+  { id:17, date:"2026-06-06", topic:"Hair Salon", topicJa:"美髮沙龍", category:"Daily Life", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, I'd like a haircut, please."},{sp:"Staff",ja:"",en:"Sure! How would you like it cut?"},{sp:"You",ja:"",en:"Just a trim, please. About two inches off."},{sp:"Staff",ja:"",en:"Would you like it washed first?"},{sp:"You",ja:"",en:"Yes, please."},{sp:"Staff",ja:"",en:"Any particular style you have in mind?"},{sp:"You",ja:"",en:"Nothing too different — just keep it natural."}],
+    keyPoints:[{ja:"",en:"Just a trim / Two inches off",note:"修剪的說法；trim = 稍微修短"},{ja:"",en:"Nothing too different",note:"不要太大變動的自然說法"},{ja:"",en:"Keep it natural",note:"維持自然感"}],
+    tags:["English","daily life","hair salon"]},
+  { id:16, date:"2026-06-06", topic:"Post Office", topicJa:"郵局寄包裹", category:"Daily Life", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, I'd like to send this package to Japan."},{sp:"Staff",ja:"",en:"Sure. Would you like standard or express shipping?"},{sp:"You",ja:"",en:"How long does standard take?"},{sp:"Staff",ja:"",en:"About 7 to 10 business days."},{sp:"You",ja:"",en:"I'll go with express, please."},{sp:"Staff",ja:"",en:"Please fill out this customs form."},{sp:"You",ja:"",en:"Could you help me fill it out?"}],
+    keyPoints:[{ja:"",en:"Standard vs express shipping",note:"普通寄送 vs 快遞"},{ja:"",en:"Business days",note:"工作天（不含週末假日）"},{ja:"",en:"I'll go with...",note:"做決定的自然說法，比 'I choose' 更口語"}],
+    tags:["English","daily life","post office"]},
+  { id:15, date:"2026-06-06", topic:"Currency Exchange", topicJa:"銀行換錢", category:"Business", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, I'd like to exchange some currency, please."},{sp:"Staff",ja:"",en:"Of course. What currency would you like to exchange?"},{sp:"You",ja:"",en:"I'd like to exchange US dollars for Japanese yen."},{sp:"Staff",ja:"",en:"How much would you like to exchange?"},{sp:"You",ja:"",en:"500 US dollars, please."},{sp:"Staff",ja:"",en:"The exchange rate today is 149 yen to the dollar. That'll be 74,500 yen."},{sp:"You",ja:"",en:"That's fine. Could I get some in smaller bills?"}],
+    keyPoints:[{ja:"",en:"Exchange rate",note:"匯率"},{ja:"",en:"Smaller bills / Large bills",note:"小鈔 / 大鈔"},{ja:"",en:"Could I get some in smaller bills?",note:"要求換小鈔的說法"}],
+    tags:["English","business","currency","bank"]},
+  { id:14, date:"2026-06-06", topic:"Tourist Attraction Ticketing", topicJa:"景點買票", category:"Travel", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, two adult tickets, please."},{sp:"Staff",ja:"",en:"That'll be $30. Are you a member?"},{sp:"You",ja:"",en:"No, I'm not. Is there a student discount?"},{sp:"Staff",ja:"",en:"Yes, 20% off with a valid student ID."},{sp:"You",ja:"",en:"Great, here's my student ID."},{sp:"Staff",ja:"",en:"The exhibition closes at 5 PM. Enjoy your visit!"},{sp:"You",ja:"",en:"Thank you. Is photography allowed inside?"}],
+    keyPoints:[{ja:"",en:"Is there a student discount?",note:"詢問學生優惠"},{ja:"",en:"Is photography allowed?",note:"詢問是否可以拍照"},{ja:"",en:"Valid student ID",note:"有效學生證"}],
+    tags:["English","travel","tickets","museum"]},
+  { id:13, date:"2026-06-06", topic:"Gym Membership", topicJa:"健身房辦會員", category:"Business", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, I'm interested in joining the gym."},{sp:"Staff",ja:"",en:"Great! We have monthly and annual memberships. Which are you interested in?"},{sp:"You",ja:"",en:"What's included in the monthly plan?"},{sp:"Staff",ja:"",en:"Unlimited access to all equipment, group classes, and the pool."},{sp:"You",ja:"",en:"Is there a sign-up fee?"},{sp:"Staff",ja:"",en:"There's a one-time $20 registration fee."},{sp:"You",ja:"",en:"I'll go with the monthly plan for now."}],
+    keyPoints:[{ja:"",en:"I'm interested in joining...",note:"表示有興趣加入的說法"},{ja:"",en:"Sign-up fee / Registration fee",note:"報名費 / 注冊費"},{ja:"",en:"For now",note:"暫時、目前，語氣較不確定"}],
+    tags:["English","business","gym","membership"]},
+  { id:12, date:"2026-06-06", topic:"Customs & Immigration", topicJa:"海關入境", category:"Travel", lang:"EN",
+    lines:[{sp:"Officer",ja:"",en:"Good morning! Passport, please."},{sp:"You",ja:"",en:"Sure, here you go."},{sp:"Officer",ja:"",en:"What's the purpose of your visit?"},{sp:"You",ja:"",en:"I'm here for tourism."},{sp:"Officer",ja:"",en:"How long will you be staying?"},{sp:"You",ja:"",en:"About two weeks."},{sp:"Officer",ja:"",en:"Do you have anything to declare?"},{sp:"You",ja:"",en:"No, I don't have anything to declare."}],
+    keyPoints:[{ja:"",en:"Purpose of visit: tourism / business / study",note:"入境目的三種常見答法"},{ja:"",en:"I have nothing to declare.",note:"無申報物品"},{ja:"",en:"I'll be staying at... for about...",note:"說明住宿地點與時間"}],
+    tags:["English","travel","customs","immigration"]},
+  { id:11, date:"2026-06-06", topic:"Bar / Pub", topicJa:"酒吧", category:"Restaurant", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, can I get a beer, please?"},{sp:"Staff",ja:"",en:"Sure! What kind? We have lager, ale, and stout."},{sp:"You",ja:"",en:"I'll go with the lager."},{sp:"Staff",ja:"",en:"Pint or half?"},{sp:"You",ja:"",en:"A pint, please."},{sp:"Staff",ja:"",en:"Can I see some ID?"},{sp:"You",ja:"",en:"Of course, here you go."}],
+    keyPoints:[{ja:"",en:"Pint or half?",note:"英式酒吧常見問法；pint ≈ 568ml"},{ja:"",en:"I'll go with the lager.",note:"做選擇的自然說法"},{ja:"",en:"Can I see some ID?",note:"查驗年齡證明"}],
+    tags:["English","restaurant","bar","drinks"]},
+  { id:10, date:"2026-06-06", topic:"Movie Theater", topicJa:"買電影票", category:"Daily Life", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Two tickets for Avengers at 7 PM, please."},{sp:"Staff",ja:"",en:"Sure! That'll be $24. Any seat preferences?"},{sp:"You",ja:"",en:"Middle row, if possible."},{sp:"Staff",ja:"",en:"Row G, seats 10 and 11 — does that work?"},{sp:"You",ja:"",en:"Perfect. I'll pay by card."},{sp:"Staff",ja:"",en:"Tap your card here. Enjoy the movie!"},{sp:"You",ja:"",en:"Thank you! Is the food stand still open?"}],
+    keyPoints:[{ja:"",en:"Any seat preferences?",note:"詢問座位偏好"},{ja:"",en:"Middle row / Aisle seat / Front row",note:"位置描述詞"},{ja:"",en:"Does that work?",note:"確認對方是否接受的自然說法"}],
+    tags:["English","daily life","movie","tickets"]},
+  { id:9, date:"2026-06-06", topic:"Taking a Taxi", topicJa:"搭計程車", category:"Travel", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, could you take me to the Grand Hotel, please?"},{sp:"Driver",ja:"",en:"Sure! Do you know the address?"},{sp:"You",ja:"",en:"It's on 5th Avenue, near Central Park."},{sp:"Driver",ja:"",en:"Got it. It'll take about 20 minutes."},{sp:"You",ja:"",en:"Could you take a different route? The highway is jammed."},{sp:"Driver",ja:"",en:"No problem. We'll go through downtown."},{sp:"You",ja:"",en:"Here's fine. How much is it?"}],
+    keyPoints:[{ja:"",en:"Could you take me to...?",note:"指定目的地的禮貌說法"},{ja:"",en:"Here's fine / You can drop me here.",note:"在某處下車的說法"},{ja:"",en:"The highway is jammed.",note:"高速公路塞車"}],
+    tags:["English","travel","taxi"]},
+  { id:8, date:"2026-06-06", topic:"MRT / Subway", topicJa:"搭捷運", category:"Travel", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Excuse me, which line goes to the airport?"},{sp:"Staff",ja:"",en:"Take the Blue Line and transfer at Central Station."},{sp:"You",ja:"",en:"How many stops is it?"},{sp:"Staff",ja:"",en:"About eight stops from here."},{sp:"You",ja:"",en:"Do I need to buy a new ticket when I transfer?"},{sp:"Staff",ja:"",en:"No, your ticket covers the whole journey."},{sp:"You",ja:"",en:"Great, thank you so much!"}],
+    keyPoints:[{ja:"",en:"Which line goes to...?",note:"詢問路線"},{ja:"",en:"Transfer at... station",note:"轉乘的說法"},{ja:"",en:"Your ticket covers the whole journey.",note:"票價包含全程"}],
+    tags:["English","travel","MRT","subway"]},
+  { id:7, date:"2026-06-06", topic:"Doctor's Office", topicJa:"看醫生", category:"Medical", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, I'd like to make an appointment with Dr. Smith."},{sp:"Staff",ja:"",en:"Of course. What's the reason for your visit?"},{sp:"You",ja:"",en:"I've had a sore throat and fever for two days."},{sp:"Doctor",ja:"",en:"How long have you had these symptoms?"},{sp:"You",ja:"",en:"Since Monday. I've been feeling worse."},{sp:"Doctor",ja:"",en:"I'll prescribe some antibiotics. Take one tablet twice a day."},{sp:"You",ja:"",en:"Should I avoid any food while taking them?"}],
+    keyPoints:[{ja:"",en:"Appointment (醫生) vs Reservation (餐廳)",note:"最常見混淆點！看醫生一定用 appointment"},{ja:"",en:"I've had... for two days",note:"現在完成式描述持續症狀"},{ja:"",en:"I'll prescribe...",note:"開處方藥"}],
+    tags:["English","medical","doctor","symptoms"]},
+  { id:6, date:"2026-06-06", topic:"Clothing Store", topicJa:"服飾店購物", category:"Shopping", lang:"EN",
+    lines:[{sp:"Staff",ja:"",en:"Hi there! Can I help you find something?"},{sp:"You",ja:"",en:"I'm just browsing, thanks."},{sp:"You",ja:"",en:"Actually, do you have this in a medium?"},{sp:"Staff",ja:"",en:"Let me check the stockroom. One moment."},{sp:"You",ja:"",en:"Could I try this on?"},{sp:"Staff",ja:"",en:"Of course! The fitting rooms are on your left."},{sp:"You",ja:"",en:"It fits well. I'll take it."}],
+    keyPoints:[{ja:"",en:"I'm just browsing.",note:"只是看看，不需要協助時的禮貌說法"},{ja:"",en:"Do you have this in a medium / large?",note:"詢問尺寸是否有貨"},{ja:"",en:"Could I try this on?",note:"試穿"}],
+    tags:["English","shopping","clothing"]},
+  { id:5, date:"2026-06-06", topic:"Restaurant Reservation", topicJa:"餐廳訂位", category:"Restaurant", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Hi, I'd like to make a reservation for two, please."},{sp:"Staff",ja:"",en:"Of course! What date and time?"},{sp:"You",ja:"",en:"This Saturday at 7 PM."},{sp:"Staff",ja:"",en:"May I have your name?"},{sp:"You",ja:"",en:"It's Chang."},{sp:"Staff",ja:"",en:"Any dietary requirements or special requests?"},{sp:"You",ja:"",en:"Could we have a window seat if possible?"}],
+    keyPoints:[{ja:"",en:"Reservation (餐廳) vs Appointment (醫生)",note:"不要混用！"},{ja:"",en:"Any dietary requirements?",note:"詢問飲食限制"},{ja:"",en:"If possible",note:"附加在請求後，語氣更客氣"}],
+    tags:["English","restaurant","reservation"]},
+  { id:4, date:"2026-06-06", topic:"Hotel Check-in", topicJa:"飯店 Check-in", category:"Travel", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Good evening. I have a reservation under the name Chang."},{sp:"Staff",ja:"",en:"Welcome! Let me pull up your reservation. Could I see your ID, please?"},{sp:"You",ja:"",en:"Sure, here you go."},{sp:"Staff",ja:"",en:"You're in Room 412. Here's your key card. Breakfast is served from 7 to 10 AM."},{sp:"You",ja:"",en:"Could I get a wake-up call at 6:30?"},{sp:"Staff",ja:"",en:"Of course. Is there anything else you need?"},{sp:"You",ja:"",en:"That's all. I'd appreciate that, thank you."}],
+    keyPoints:[{ja:"",en:"I have a reservation under the name...",note:"報名字訂房的說法"},{ja:"",en:"Could I get a wake-up call?",note:"叫醒服務"},{ja:"",en:"I'd appreciate that.",note:"比 'thank you' 更正式；之前曾說 'give me a favor'，這才對"}],
+    tags:["English","travel","hotel"]},
+  { id:3, date:"2026-06-06", topic:"On the Airplane", topicJa:"飛機上對話", category:"Travel", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Excuse me, could I get a blanket?"},{sp:"Staff",ja:"",en:"Of course! Here you go. Would you like anything else?"},{sp:"You",ja:"",en:"Could I also get some water?"},{sp:"Staff",ja:"",en:"Still or sparkling?"},{sp:"You",ja:"",en:"Still, please."},{sp:"Staff",ja:"",en:"What would you like for your meal — chicken or fish?"},{sp:"You",ja:"",en:"I'd like the chicken, please."}],
+    keyPoints:[{ja:"",en:"Could I get...?",note:"請空服員提供東西的禮貌說法"},{ja:"",en:"Still or sparkling?",note:"still = 無氣泡；sparkling = 氣泡水"},{ja:"",en:"Aisle seat / Window seat",note:"aisle 發音 /aɪl/，不發 s"}],
+    tags:["English","travel","airplane"]},
+  { id:2, date:"2026-06-06", topic:"Supermarket Shopping", topicJa:"超市購物", category:"Shopping", lang:"EN",
+    lines:[{sp:"You",ja:"",en:"Excuse me, where can I find the dairy section?"},{sp:"Staff",ja:"",en:"It's in aisle 4, on your left."},{sp:"You",ja:"",en:"Thank you! Is there an ATM nearby?"},{sp:"Staff",ja:"",en:"Yes, there's one right by the entrance."},{sp:"Staff",ja:"",en:"Did you find everything you were looking for?"},{sp:"You",ja:"",en:"Yes, thanks. I'll pay cash for these."}],
+    keyPoints:[{ja:"",en:"I'll pay cash for these.",note:"'I'll take cash to these stuff' ❌"},{ja:"",en:"Is there an ATM nearby?",note:"詢問附近設施"},{ja:"",en:"Did you find everything you were looking for?",note:"結帳時店員常用語"}],
+    tags:["English","shopping","daily life"]},
+  { id:1, date:"2026-06-06", topic:"Ordering at McDonald's", topicJa:"麥當勞點餐", category:"Restaurant", lang:"EN",
+    lines:[{sp:"Staff",ja:"",en:"Hi, welcome to McDonald's! What can I get for you?"},{sp:"You",ja:"",en:"I'd like a Big Mac and a large Coke, please."},{sp:"Staff",ja:"",en:"Would you like fries with that?"},{sp:"You",ja:"",en:"Yes, please. Large fries."},{sp:"Staff",ja:"",en:"For here or to go?"},{sp:"You",ja:"",en:"To go, please."},{sp:"Staff",ja:"",en:"That'll be $8.50. How would you like to pay?"},{sp:"You",ja:"",en:"By card, please."}],
+    keyPoints:[{ja:"",en:"I'd like... / Could I get...?",note:"點餐最自然的說法"},{ja:"",en:"For here or to go?",note:"內用或外帶；英式：eat in / take away"},{ja:"",en:"fries ≠ rice",note:"曾混淆，注意發音差異"}],
+    tags:["English","restaurant","ordering"]},
+];
+
+const CATS = ["All","Restaurant","Travel","Business","Medical","Shopping","Daily Life"];
+const CC = {Restaurant:"#E8895A",Travel:"#5BAE95",Business:"#6B8FC4",Medical:"#B86896",Shopping:"#7BAE45","Daily Life":"#B8A830"};
+const CB = {Restaurant:"#FEF0E8",Travel:"#E8F5F1",Business:"#EBF0F9",Medical:"#F8EDF4",Shopping:"#EFF6E5","Daily Life":"#F8F4E2"};
+const SK = "dj-v3";
+
+function fmt(d){return new Date(d).toLocaleDateString("zh-TW",{year:"numeric",month:"short",day:"numeric"});}
+
+function exportPDF(entries,lang){
+  const list=lang==="ALL"?entries:entries.filter(e=>e.lang===lang);
+  const rows=list.map(e=>`<div class="e"><div class="eh"><b>${e.topicJa||e.topic}</b>${e.topicJa?" / "+e.topic:""}<br><small>${e.category} · ${fmt(e.date)}</small></div><table>${e.lines.filter(l=>l.ja||l.en).map(l=>`<tr>${l.sp?`<td class="sp">${l.sp}</td>`:""} ${l.ja?`<td class="ja">${l.ja}</td>`:""}<td class="en">${l.en}</td></tr>`).join("")}</table><div class="kt">重點句型</div><table class="kp">${e.keyPoints.map(k=>`<tr>${k.ja?`<td class="kj">${k.ja}</td>`:""}<td class="ke">${k.en}</td><td class="kn">${k.note}</td></tr>`).join("")}</table></div>`).join("");
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>日英 Dialogue Journal</title><style>body{font-family:'Noto Serif TC',Georgia,serif;margin:32px;color:#222;font-size:13px}h1{font-size:18px;border-bottom:2px solid #c8a87c;padding-bottom:5px;margin-bottom:3px}.sub{color:#888;font-size:11px;margin-bottom:24px}.e{margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid #e8e0d0;break-inside:avoid}.eh{margin-bottom:8px;font-size:14px}small{font-size:10px;color:#999}table{width:100%;border-collapse:collapse;margin-bottom:10px}td{padding:4px 7px;vertical-align:top}.e tr:nth-child(odd) td{background:#faf8f5}.sp{width:44px;color:#999;font-size:10px}.ja{width:44%;color:#333}.en{color:#1a6b5a}.kt{font-size:10px;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}.kp td{font-size:12px;border-top:1px solid #f0ebe3}.kj{width:20%;color:#c87c3a;font-weight:600}.ke{width:28%;color:#1a6b5a}.kn{color:#666}@media print{body{margin:16px}}</style></head><body><h1>日英 Dialogue Journal</h1><div class="sub">匯出：${new Date().toLocaleString("zh-TW")} · 共 ${list.length} 個情境</div>${rows}</body></html>`;
+  const b=new Blob([html],{type:"text/html"});
+  const u=URL.createObjectURL(b);
+  const w=window.open(u,"_blank");
+  if(w) w.onload=()=>w.print();
+}
+
+function App(){
+  const [entries,setEntries]=useState([]);
+  const [loaded,setLoaded]=useState(false);
+  const [view,setView]=useState("list");
+  const [sel,setSel]=useState(null);
+  const [fCat,setFCat]=useState("All");
+  const [fLang,setFLang]=useState("ALL");
+  const [q,setQ]=useState("");
+  const [saveSt,setSaveSt]=useState(null);
+  const [pdfMenu,setPdfMenu]=useState(false);
+  const [study,setStudy]=useState("all");
+  const [rev,setRev]=useState({});
+  const [ai,setAi]=useState(null);
+  const [aiLoad,setAiLoad]=useState(false);
+  const [form,setForm]=useState({topic:"",topicJa:"",date:new Date().toISOString().split("T")[0],category:"Daily Life",lang:"EN",lines:[{sp:"",ja:"",en:""}],keyPoints:[{ja:"",en:"",note:""}],tags:""});
+
+  useEffect(()=>{
+    try{const s=localStorage.getItem(SK);setEntries(s?JSON.parse(s):SAMPLE_ENTRIES);}
+    catch{setEntries(SAMPLE_ENTRIES);}
+    setLoaded(true);
+  },[]);
+
+  useEffect(()=>{
+    if(!loaded)return;
+    setSaveSt("saving");
+    try{localStorage.setItem(SK,JSON.stringify(entries));setSaveSt("saved");setTimeout(()=>setSaveSt(null),2000);}
+    catch{setSaveSt("error");setTimeout(()=>setSaveSt(null),3000);}
+  },[entries,loaded]);
+
+  const list=entries.filter(e=>{
+    const mc=fCat==="All"||e.category===fCat;
+    const ml=fLang==="ALL"||e.lang===fLang;
+    const ms=!q||e.topic.toLowerCase().includes(q.toLowerCase())||(e.topicJa||"").includes(q)||(e.tags||[]).some(t=>t.includes(q.toLowerCase()));
+    return mc&&ml&&ms;
+  });
+
+  async function runAI(entry){
+    setAiLoad(true);setAi(null);
+    try{
+      const isJA=entry.lang==="JA";
+      const dlg=entry.lines.filter(l=>l.ja||l.en).map((l,i)=>`${i+1}. ${l.ja||""} / ${l.en}`).join("\n");
+      const prompt=`你是${isJA?"日語":"英語"}老師，用繁體中文分析以下對話，只回傳JSON不加markdown：\n{"level":"${isJA?"N5/N4/N3/N2/N1":"A1/A2/B1/B2/C1"}","mainGrammar":["文法1","文法2"],"culturalNotes":"文化背景","studyTips":["建議1","建議2"],"difficulty":3}\n主題: ${entry.topic}\n${dlg}`;
+      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+      const data=await res.json();
+      if(data.error)throw new Error(data.error.message);
+      const txt=data.content?.find(b=>b.type==="text")?.text||"{}";
+      setAi(JSON.parse(txt.replace(/```json|```/g,"").trim()));
+    }catch(e){setAi({error:`分析失敗：${e.message}`});}
+    setAiLoad(false);
+  }
+
+  function addEntry(){
+    setEntries(p=>[{...form,id:Date.now(),tags:form.tags.split(",").map(t=>t.trim()).filter(Boolean)},...p]);
+    setView("list");
+    setForm({topic:"",topicJa:"",date:new Date().toISOString().split("T")[0],category:"Daily Life",lang:"EN",lines:[{sp:"",ja:"",en:""}],keyPoints:[{ja:"",en:"",note:""}],tags:""});
+  }
+
+  function open(e){setSel(e);setView("detail");setAi(null);}
+  function back(){setView("list");setSel(null);setAi(null);}
+  function toggle(k){setRev(p=>({...p,[k]:!p[k]}));}
+
+  if(!loaded)return React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"100vh",color:"#999",fontSize:14}},"載入中…");
+
+  return (
+    <div>
+      {/* HEADER */}
+      <header style={{background:"#fff",borderBottom:"1px solid #ECEAE4",position:"sticky",top:0,zIndex:200,boxShadow:"0 1px 0 #ECEAE4"}}>
+        <div className="app-wrap" style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 16px"}}>
+          <div style={{display:"flex",alignItems:"baseline",gap:10}}>
+            <span style={{fontSize:20,fontWeight:700,letterSpacing:"-0.5px"}}>日英</span>
+            <span style={{fontSize:11,color:"#bbb",letterSpacing:2,textTransform:"uppercase"}}>Dialogue Journal</span>
+          </div>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            {view!=="list"
+              ? <button className="back-btn" onClick={back}>← 返回</button>
+              : <>
+                  <div style={{position:"relative"}}>
+                    <button onClick={()=>setPdfMenu(p=>!p)} className="hdr-btn" style={{background:"#F7F5F0",color:"#666",border:"1px solid #E0DDD6"}}>PDF</button>
+                    {pdfMenu&&<div className="pdf-dropdown">
+                      {[["ALL","全部"],["EN","英語"],["JA","日語"]].map(([v,l])=>(
+                        <div key={v} className="pdf-option" onClick={()=>{exportPDF(entries,v);setPdfMenu(false)}}>{l}情境</div>
+                      ))}
+                    </div>}
+                  </div>
+                  <button onClick={()=>setView("study")} className="hdr-btn" style={{background:"#EBF4F1",color:"#2E7D6A",border:"1px solid #C8E4DC"}}>練習</button>
+                  <button onClick={()=>setView("add")} className="hdr-btn" style={{background:"#1A1A1A",color:"#fff",border:"none"}}>+ 新增</button>
+                </>
+            }
+          </div>
+        </div>
+        {saveSt&&<div style={{textAlign:"center",fontSize:11,padding:"3px 0",background:saveSt==="saved"?"#EBF4F1":saveSt==="error"?"#FDEEEE":"#F7F5F0",color:saveSt==="saved"?"#2E7D6A":saveSt==="error"?"#C04040":"#bbb"}}>
+          {saveSt==="saving"?"儲存中…":saveSt==="saved"?"✓ 已儲存":"儲存失敗"}
+        </div>}
+      </header>
+
+      <div className="app-wrap" style={{paddingTop:20,paddingBottom:80}}>
+
+        {/* LIST */}
+        {view==="list"&&<>
+          <input className="inp" value={q} onChange={e=>setQ(e.target.value)} placeholder="搜尋主題或標籤…" style={{marginBottom:14}}/>
+          <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap",alignItems:"center"}}>
+            {[["ALL","全部"],["EN","英語"],["JA","日語"]].map(([v,l])=>(
+              <button key={v} className={"filter-pill"+(fLang===v?" active":"")} onClick={()=>setFLang(v)}>{l}</button>
+            ))}
+            <span style={{flex:1}}/>
+            <span style={{fontSize:11,color:"#bbb"}}>{list.length} 個</span>
+          </div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:16}}>
+            {CATS.map(c=><button key={c} className="cat-pill" onClick={()=>setFCat(c)} style={{background:fCat===c?(CC[c]||"#1A1A1A"):(CB[c]||"#F0EDEA"),color:fCat===c?"#fff":(CC[c]||"#666"),fontWeight:fCat===c?700:400}}>{c}</button>)}
+          </div>
+          <div className="grid-3" style={{marginBottom:20}}>
+            {[{l:"英語",v:entries.filter(e=>e.lang==="EN").length},{l:"日語",v:entries.filter(e=>e.lang==="JA").length},{l:"累積句型",v:entries.reduce((a,e)=>a+e.keyPoints.length,0)}].map(s=>(
+              <div key={s.l} className="stat-box"><div className="stat-num">{s.v}</div><div className="stat-label">{s.l}</div></div>
+            ))}
+          </div>
+          <div className="entry-grid">
+            {list.map(e=>(
+              <div key={e.id} className="entry-card" style={{borderTopColor:CC[e.category]||"#ddd"}} onClick={()=>open(e)}>
+                <div style={{marginBottom:8}}>
+                  <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+                    <span style={{fontSize:15,fontWeight:700}}>{e.topicJa||e.topic}</span>
+                    <span className="lang-badge" style={{background:e.lang==="EN"?"#EBF4F1":"#FEF0E8",color:e.lang==="EN"?"#2E7D6A":"#C87030"}}>{e.lang}</span>
+                  </div>
+                  {e.topicJa&&<div style={{fontSize:12,color:"#999",marginTop:2}}>{e.topic}</div>}
+                </div>
+                <div style={{fontSize:11,color:"#bbb",marginBottom:8}}>{fmt(e.date)}</div>
+                <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                  <span className="cat-pill" style={{background:CB[e.category]||"#F0EDEA",color:CC[e.category]||"#888",fontSize:10,padding:"2px 8px"}}>{e.category}</span>
+                  {(e.tags||[]).slice(0,3).map(t=><span key={t} className="tag">#{t}</span>)}
+                </div>
+                <div style={{marginTop:10,fontSize:11,color:"#bbb"}}>{e.lines.filter(l=>l.ja||l.en).length} lines · {e.keyPoints.length} key points</div>
+              </div>
+            ))}
+          </div>
+          {list.length===0&&<div style={{textAlign:"center",padding:"48px 0",color:"#bbb",fontSize:14}}>找不到符合的對話</div>}
+        </>}
+
+        {/* DETAIL */}
+        {view==="detail"&&sel&&<div>
+          <div style={{background:"#fff",borderRadius:16,padding:"20px",border:"1px solid #ECEAE4",marginBottom:20,borderTop:`4px solid ${CC[sel.category]||"#ddd"}`}}>
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8,flexWrap:"wrap"}}>
+              <span className="lang-badge" style={{background:sel.lang==="EN"?"#EBF4F1":"#FEF0E8",color:sel.lang==="EN"?"#2E7D6A":"#C87030"}}>{sel.lang}</span>
+              <span className="cat-pill" style={{background:CB[sel.category]||"#F0EDEA",color:CC[sel.category]||"#888",fontSize:11,padding:"2px 9px"}}>{sel.category}</span>
+              <span style={{fontSize:11,color:"#bbb"}}>{fmt(sel.date)}</span>
+            </div>
+            <h2 style={{fontSize:22,fontWeight:700,margin:"0 0 4px",lineHeight:1.3}}>{sel.topicJa||sel.topic}</h2>
+            {sel.topicJa&&<p style={{margin:0,fontSize:14,color:"#888"}}>{sel.topic}</p>}
+            {(sel.tags||[]).length>0&&<div style={{marginTop:10}}>{sel.tags.map(t=><span key={t} className="tag">#{t}</span>)}</div>}
+          </div>
+          <div className="detail-cols">
+            <div>
+              <div className="section-title">對話</div>
+              {sel.lines.filter(l=>l.ja||l.en).map((l,i)=>(
+                <div key={i} className="line-card">
+                  {l.sp&&<div className="line-sp">{l.sp}</div>}
+                  {l.ja&&<div className="line-ja">{l.ja}</div>}
+                  {l.en&&<div className="line-en">{l.en}</div>}
+                </div>
+              ))}
+              <div className="section-title" style={{marginTop:24}}>AI 學習分析</div>
+              {!ai&&!aiLoad&&<button onClick={()=>runAI(sel)} style={{width:"100%",background:"#F7F5F0",border:"1px dashed #C8C0B0",borderRadius:12,padding:"14px",fontSize:14,color:"#888"}}>✨ 讓 AI 分析這段對話</button>}
+              {aiLoad&&<div style={{textAlign:"center",padding:24,color:"#bbb",fontSize:13}}>🔄 分析中…</div>}
+              {ai&&!ai.error&&<>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+                  <div className="ai-box" style={{textAlign:"center"}}><div className="ai-label">程度</div><div style={{fontSize:22,fontWeight:700,color:"#C87030"}}>{ai.level}</div></div>
+                  <div className="ai-box" style={{textAlign:"center"}}><div className="ai-label">難度</div><div style={{fontSize:18}}>{"⭐".repeat(ai.difficulty||1)}</div></div>
+                </div>
+                <div className="ai-box"><div className="ai-label">主要文法</div>{(ai.mainGrammar||[]).map((g,i)=><div key={i} style={{fontSize:13,color:"#333",padding:"3px 0",lineHeight:1.6}}>• {g}</div>)}</div>
+                <div className="ai-box"><div className="ai-label">文化背景</div><div style={{fontSize:13,color:"#666",lineHeight:1.7}}>{ai.culturalNotes}</div></div>
+                <div className="ai-box"><div className="ai-label">學習建議</div>{(ai.studyTips||[]).map((t,i)=><div key={i} style={{fontSize:13,color:"#333",padding:"3px 0",lineHeight:1.6}}>💡 {t}</div>)}</div>
+              </>}
+              {ai?.error&&<div style={{color:"#C04040",fontSize:13,padding:12}}>{ai.error}</div>}
+            </div>
+            <div>
+              <div className="section-title">重點句型</div>
+              {sel.keyPoints.map((kp,i)=>(
+                <div key={i} className="kp-card">
+                  {kp.ja&&<div className="kp-main">{kp.ja}</div>}
+                  <div className="kp-en">{kp.en}</div>
+                  {kp.note&&<div className="kp-note">💡 {kp.note}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>}
+
+        {/* STUDY */}
+        {view==="study"&&<div>
+          <h2 style={{fontSize:18,fontWeight:700,marginBottom:4}}>練習模式</h2>
+          <p style={{fontSize:12,color:"#bbb",marginBottom:16}}>點擊遮罩揭露答案</p>
+          <div style={{display:"flex",gap:8,marginBottom:20}}>
+            {[["all","全部顯示"],["hide-en","遮英文"],["hide-ja","遮日文"]].map(([m,l])=>(
+              <button key={m} className={"filter-pill"+(study===m?" active":"")} onClick={()=>{setStudy(m);setRev({});}}>{l}</button>
+            ))}
+          </div>
+          {entries.map(entry=>(
+            <div key={entry.id} style={{marginBottom:24}}>
+              <div style={{fontSize:12,color:"#888",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                <span style={{width:8,height:8,borderRadius:"50%",background:CC[entry.category]||"#ddd",display:"inline-block"}}/>
+                <span style={{fontWeight:600}}>{entry.topicJa||entry.topic}</span>
+                <span className="lang-badge" style={{background:entry.lang==="EN"?"#EBF4F1":"#FEF0E8",color:entry.lang==="EN"?"#2E7D6A":"#C87030"}}>{entry.lang}</span>
+              </div>
+              {entry.lines.filter(l=>l.ja||l.en).map((line,i)=>{
+                const k=`${entry.id}-${i}`;
+                const ke=`en-${k}`;
+                return <div key={i} className="line-card">
+                  {line.sp&&<div className="line-sp">{line.sp}</div>}
+                  {line.ja&&(study==="hide-ja"
+                    ?<div onClick={()=>toggle(k)}>{rev[k]?<span className="line-ja">{line.ja}</span>:<span className="hidden-ja">{line.ja}</span>}{!rev[k]&&<div className="study-hint">點擊顯示日文</div>}</div>
+                    :<div className="line-ja">{line.ja}</div>)}
+                  {line.en&&(study==="hide-en"
+                    ?<div onClick={()=>toggle(ke)}>{rev[ke]?<span className="line-en">{line.en}</span>:<span className="hidden-en">{line.en}</span>}{!rev[ke]&&<div className="study-hint">點擊顯示英文</div>}</div>
+                    :<div className="line-en">{line.en}</div>)}
+                </div>;
+              })}
+            </div>
+          ))}
+        </div>}
+
+        {/* ADD */}
+        {view==="add"&&<div>
+          <h2 style={{fontSize:18,fontWeight:700,marginBottom:18}}>新增對話</h2>
+          <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            <div style={{display:"flex",gap:8}}>
+              {[["EN","English"],["JA","日本語"]].map(([v,l])=>(
+                <button key={v} onClick={()=>setForm(p=>({...p,lang:v}))} style={{flex:1,padding:10,borderRadius:10,border:`2px solid ${form.lang===v?(v==="EN"?"#2E7D6A":"#C87030"):"#E0DDD6"}`,background:form.lang===v?(v==="EN"?"#EBF4F1":"#FEF0E8"):"#fff",color:form.lang===v?(v==="EN"?"#2E7D6A":"#C87030"):"#bbb",fontWeight:form.lang===v?700:400,fontSize:14}}>{l}</button>
+              ))}
+            </div>
+            <div className="grid-2">
+              <div><label style={LS}>主題（中文）</label><input className="inp" value={form.topicJa} onChange={e=>setForm(p=>({...p,topicJa:e.target.value}))} placeholder="例: 飯店 Check-in"/></div>
+              <div><label style={LS}>Topic (EN)</label><input className="inp" value={form.topic} onChange={e=>setForm(p=>({...p,topic:e.target.value}))} placeholder="e.g. Hotel Check-in"/></div>
+            </div>
+            <div className="grid-2">
+              <div><label style={LS}>日期</label><input type="date" className="inp" value={form.date} onChange={e=>setForm(p=>({...p,date:e.target.value}))}/></div>
+              <div><label style={LS}>類別</label><select className="inp" value={form.category} onChange={e=>setForm(p=>({...p,category:e.target.value}))}>{CATS.filter(c=>c!=="All").map(c=><option key={c}>{c}</option>)}</select></div>
+            </div>
+            <div>
+              <label style={LS}>對話內容</label>
+              {form.lines.map((line,i)=>(
+                <div key={i} className="form-line">
+                  <input className="inp" value={line.sp} onChange={e=>{const l=[...form.lines];l[i].sp=e.target.value;setForm(p=>({...p,lines:l}))}} placeholder="誰說"/>
+                  <input className="inp" value={line.ja} onChange={e=>{const l=[...form.lines];l[i].ja=e.target.value;setForm(p=>({...p,lines:l}))}} placeholder="日文"/>
+                  <input className="inp" value={line.en} onChange={e=>{const l=[...form.lines];l[i].en=e.target.value;setForm(p=>({...p,lines:l}))}} placeholder="English"/>
+                </div>
+              ))}
+              <button onClick={()=>setForm(p=>({...p,lines:[...p.lines,{sp:"",ja:"",en:""}]}))} style={AB}>+ 新增一行</button>
+            </div>
+            <div>
+              <label style={LS}>重點句型</label>
+              {form.keyPoints.map((kp,i)=>(
+                <div key={i} className="kp-row" style={{marginBottom:6}}>
+                  <input className="inp" value={kp.ja} onChange={e=>{const k=[...form.keyPoints];k[i].ja=e.target.value;setForm(p=>({...p,keyPoints:k}))}} placeholder="日文"/>
+                  <input className="inp" value={kp.en} onChange={e=>{const k=[...form.keyPoints];k[i].en=e.target.value;setForm(p=>({...p,keyPoints:k}))}} placeholder="English"/>
+                  <input className="inp" value={kp.note} onChange={e=>{const k=[...form.keyPoints];k[i].note=e.target.value;setForm(p=>({...p,keyPoints:k}))}} placeholder="說明" style={{gridColumn:"1/-1"}}/>
+                </div>
+              ))}
+              <button onClick={()=>setForm(p=>({...p,keyPoints:[...p.keyPoints,{ja:"",en:"",note:""}]}))} style={AB}>+ 新增句型</button>
+            </div>
+            <div><label style={LS}>標籤（逗號分隔）</label><input className="inp" value={form.tags} onChange={e=>setForm(p=>({...p,tags:e.target.value}))} placeholder="travel, keigo, daily life"/></div>
+            <button className="save-btn" onClick={addEntry}>儲存對話</button>
+          </div>
+        </div>}
+
+      </div>
+    </div>
+  );
+}
+
+const LS={fontSize:10,color:"#bbb",display:"block",marginBottom:5,textTransform:"uppercase",letterSpacing:1};
+const AB={width:"100%",background:"none",border:"1px dashed #E0DDD6",borderRadius:8,padding:"8px",fontSize:12,color:"#bbb",cursor:"pointer",marginTop:2};
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
